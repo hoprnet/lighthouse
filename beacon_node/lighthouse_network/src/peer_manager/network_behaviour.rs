@@ -9,7 +9,7 @@ use libp2p::swarm::{
     ConnectionHandler, DialError, NetworkBehaviour, NetworkBehaviourAction, PollParameters,
 };
 use libp2p::{Multiaddr, PeerId};
-use slog::{debug, error};
+use slog::{debug, error, info};
 use types::EthSpec;
 
 use crate::metrics;
