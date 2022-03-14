@@ -16,11 +16,8 @@ use ssz::Encode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use store::hot_cold_store::HotColdDBError;
 use tokio::sync::mpsc;
-use types::{
-    Attestation, AttesterSlashing, EthSpec, Hash256, IndexedAttestation, ProposerSlashing,
-    SignedAggregateAndProof, SignedBeaconBlock, SignedContributionAndProof, SignedVoluntaryExit,
-    Slot, SubnetId, SyncCommitteeMessage, SyncSubnetId,
-};
+use store::PublicKey;
+use types::{Attestation, AttestationData, AttesterSlashing, EthSpec, Hash256, IndexedAttestation, ProposerSlashing, SignedAggregateAndProof, SignedBeaconBlock, SignedContributionAndProof, SignedVoluntaryExit, Slot, SubnetId, SyncCommitteeMessage, SyncSubnetId};
 
 use super::{
     super::work_reprocessing_queue::{
@@ -322,6 +319,41 @@ impl<T: BeaconChainTypes> Worker<T> {
         }
     }
 
+    fn print_validator_info(&self, peer_id: String, data: &AttestationData, validator_idx: usize, pub_key: PublicKey) {
+
+        let peer_addrs = if let Some((_, pinfo)) = self.network_globals.peers
+            .read()
+            .peers()
+            .find(|(pid, _)| pid.to_base58() == peer_id)
+        {
+            if let Some(socket_addr) = pinfo.seen_addresses().next() {
+                let mut addr =
+                    lighthouse_network::Multiaddr::from(socket_addr.ip());
+                addr.push(lighthouse_network::multiaddr::Protocol::Tcp(
+                    socket_addr.port(),
+                ));
+                addr.to_string()
+            } else if let Some(addr) = pinfo.listening_addresses().first() {
+                addr.to_string()
+            } else {
+                "none".to_string()
+            }
+        }
+        else {
+            "none".to_string()
+        };
+
+        info!(self.log,
+            "Verified UNAGGREGATED attestation";
+                "validator_idx" => validator_idx,
+                "peer_id" => peer_id,
+                "pub_key" => pub_key.as_hex_string(),
+                "peer_addrs" => peer_addrs,
+                "slot" => data.slot.as_u64(), "epoch" => data.slot.epoch(T::EthSpec::slots_per_epoch()).as_u64(),
+                "rel_slot" => data.slot.epoch(T::EthSpec::slots_per_epoch()).position(data.slot, T::EthSpec::slots_per_epoch())
+        );
+    }
+
     // Clippy warning is is ignored since the arguments are all of a different type (i.e., they
     // cant' be mixed-up) and creating a struct would result in more complexity.
     #[allow(clippy::too_many_arguments)]
@@ -344,8 +376,10 @@ impl<T: BeaconChainTypes> Worker<T> {
                     let idx = *validator_idx as usize;
                     if let Ok(pk) = self.chain.validator_pubkey(idx) {
                         if let Some(pub_key) = pk {
-                            info!(self.log, "Verified UNAGGREGATED attestation";
-                                        "peer_id" => peer_id.to_base58(), "pub_key" => pub_key.as_hex_string());
+                            self.print_validator_info(peer_id.to_base58(),
+                                                      &verified_attestation.attestation.data,
+                                                      idx,
+                                                      pub_key)
                         }
                         else {
                             error!(self.log, "Failed to determine public key for unaggregated attestation";

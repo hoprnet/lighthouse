@@ -10,6 +10,7 @@ mod rpc_methods;
 mod sync_methods;
 
 pub use gossip_methods::{GossipAggregatePackage, GossipAttestationPackage};
+use lighthouse_network::NetworkGlobals;
 pub use sync_methods::ProcessId;
 
 pub(crate) const FUTURE_SLOT_TOLERANCE: u64 = 1;
@@ -20,6 +21,7 @@ pub struct Worker<T: BeaconChainTypes> {
     pub network_tx: mpsc::UnboundedSender<NetworkMessage<T::EthSpec>>,
     pub sync_tx: mpsc::UnboundedSender<SyncMessage<T::EthSpec>>,
     pub log: Logger,
+    pub network_globals: Arc<NetworkGlobals<T::EthSpec>>
 }
 
 impl<T: BeaconChainTypes> Worker<T> {
