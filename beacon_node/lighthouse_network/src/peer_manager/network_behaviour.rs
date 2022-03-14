@@ -8,7 +8,7 @@ use libp2p::swarm::{
     DialError, NetworkBehaviour, NetworkBehaviourAction, PollParameters, ProtocolsHandler,
 };
 use libp2p::{Multiaddr, PeerId};
-use slog::{debug, error, info};
+use slog::{trace, debug, error, info};
 use types::EthSpec;
 
 use crate::metrics;
@@ -112,7 +112,7 @@ impl<TSpec: EthSpec> NetworkBehaviour for PeerManager<TSpec> {
         _failed_addresses: Option<&Vec<Multiaddr>>,
         _other_established: usize,
     ) {
-        info!(self.log, "Connection established"; "peer_id" => %peer_id, "connection" => ?endpoint.to_endpoint());
+        trace!(self.log, "Connection established"; "peer_id" => %peer_id, "connection" => ?endpoint.to_endpoint());
         // Check NAT if metrics are enabled
         if self.network_globals.local_enr.read().udp().is_some() {
             metrics::check_nat();
