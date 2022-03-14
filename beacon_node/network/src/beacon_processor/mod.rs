@@ -1366,6 +1366,7 @@ impl<T: BeaconChainTypes> BeaconProcessor<T> {
             network_tx: self.network_tx.clone(),
             sync_tx: self.sync_tx.clone(),
             log: self.log.clone(),
+            network_globals: self.network_globals.clone()
         };
 
         let duplicate_cache = self.importing_blocks.clone();
