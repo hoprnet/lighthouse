@@ -9,7 +9,7 @@ use libp2p::swarm::{
     ConnectionHandler, DialError, NetworkBehaviour, NetworkBehaviourAction, PollParameters,
 };
 use libp2p::{Multiaddr, PeerId};
-use slog::{debug, error, info};
+use slog::{trace, debug, error, info};
 use types::EthSpec;
 
 use crate::metrics;
@@ -124,7 +124,7 @@ impl<TSpec: EthSpec> NetworkBehaviour for PeerManager<TSpec> {
         _failed_addresses: Option<&Vec<Multiaddr>>,
         other_established: usize,
     ) {
-        debug!(self.log, "Connection established"; "peer_id" => %peer_id, "connection" => ?endpoint.to_endpoint());
+        trace!(self.log, "Connection established"; "peer_id" => %peer_id, "connection" => ?endpoint.to_endpoint());
         if other_established == 0 {
             self.events.push(PeerManagerEvent::MetaData(*peer_id));
         }

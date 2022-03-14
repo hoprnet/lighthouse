@@ -612,7 +612,7 @@ impl<T: BeaconChainTypes> Worker<T> {
                 let aggregate = &verified_aggregate.signed_aggregate;
                 let indexed_attestation = &verified_aggregate.indexed_attestation;
 
-                info!(self.log, "Verified aggregated attestation");
+                trace!(self.log, "Verified aggregated attestation");
 
                 // If the attestation is still timely, propagate it.
                 self.propagate_attestation_if_timely(
