@@ -393,7 +393,7 @@ impl<T: BeaconChainTypes> Worker<T> {
                             self.print_validator_info(peer_id.to_base58(),
                                                       &verified_attestation.attestation.data,
                                                       idx,
-                                                      pub_key)
+                                                      pub_key);
                         }
                         else {
                             error!(self.log, "Failed to determine public key for unaggregated attestation";
