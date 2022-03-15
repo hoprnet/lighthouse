@@ -8,7 +8,7 @@ use libp2p::swarm::{
     DialError, NetworkBehaviour, NetworkBehaviourAction, PollParameters, ProtocolsHandler,
 };
 use libp2p::{Multiaddr, PeerId};
-use slog::{trace, debug, error, info};
+use slog::{trace, debug, error};
 use types::EthSpec;
 
 use crate::metrics;
